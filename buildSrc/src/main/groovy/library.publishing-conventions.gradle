@@ -1,0 +1,36 @@
+// This file defines the default configurations for publishing a subproject to HEC Nexus. Note that each subproject
+// still requires a `publishing` block to actually specify the component that will be published.
+
+plugins {
+    id 'maven-publish'
+}
+
+// This function is used to provide a user-parseable error when Nexus credentials are not provided which can possibly
+// cause a build failure. This will stop the build with the error to attempt to prevent locking out a Nexus account if
+// the credentials are not provided.
+def checkForPublishCredentials() {
+    if(!project.hasProperty('nexusUser')) {
+        throw new GradleException('Please set the nexusUser property in the GRADLE_USER_HOME ($userHome/.gradle/gradle.properties) file or via -PnexusUser= .')
+    }
+    if(!project.hasProperty('nexusPassword')) {
+        throw new GradleException('Please set the nexusPassword property in the GRADLE_USER_HOME ($userHome/.gradle/gradle.properties) file or via -PnexusPassword= .')
+    }
+}
+
+publishing {
+    // Publish to HEC's Maven-public by targeting the appropriate maven-snapshots or maven-releases repo based on the
+    // version of the library being deployed.
+    repositories {
+        maven {
+            credentials {
+                checkForPublishCredentials()
+                username = project.hasProperty('nexusUser') ? "$nexusUser" : "noUserSpecified"
+                password = project.hasProperty('nexusPassword') ? "$nexusPassword" : "noPasswordSpecified"
+            }
+            def baseUrl = "https://www.hec.usace.army.mil/nexus/repository"
+            afterEvaluate {
+                url = version.toString().endsWith("SNAPSHOT") ? "$baseUrl/maven-snapshots/" : "$baseUrl/maven-releases/"
+            }
+        }
+    }
+}

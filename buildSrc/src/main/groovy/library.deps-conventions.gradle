@@ -1,0 +1,32 @@
+// This file provides a set of defaults for defining the `repositories` block for subprojects within this build.
+// This ensures that all subprojects use the same repositories and credentials.
+
+
+// This function is used to provide a user-parseable error when Nexus credentials are not provided which can possibly cause a build failure.
+def checkForNexusCredentials() {
+    if(!project.hasProperty('nexusUser')) {
+        println ('Please set the nexusUser property in the GRADLE_USER_HOME ($userHome/.gradle/gradle.properties) file or via -PnexusUser= .')
+    }
+    if(!project.hasProperty('nexusPassword')) {
+        println ('Please set the nexusPassword property in the GRADLE_USER_HOME ($userHome/.gradle/gradle.properties) file or via -PnexusPassword= .')
+    }
+}
+
+// Define a standard set of repositories, a specific library may need to customize this list and add or remove some items
+repositories {
+    maven {
+        // The HEC Public repository where a lot of base dependencies are stored like hec-monolith
+        url 'https://www.hec.usace.army.mil/nexus/repository/maven-public'
+    }
+    maven {
+        // The HEC Internal repository where internal artifacts are available, such as applications and CWMS libraries
+        url 'https://www.hec.usace.army.mil/nexus/repository/hec-internal'
+        credentials {
+            checkForNexusCredentials()
+            username "$nexusUser"
+            password "$nexusPassword"
+        }
+    }
+    // The primary public Maven repository, Maven Central where most 3rd party dependencies can be found
+    mavenCentral()
+}

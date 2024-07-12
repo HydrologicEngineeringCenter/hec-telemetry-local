@@ -1,0 +1,32 @@
+# Once versions / libraries / bundles have been declared here, they can be accessed by all projects in the build.
+# To reference them, the syntax "libs.versions" for [versions], "libs.library-name-here" for [libraries], and
+# "libs.bundles.bundle-name-here" for [bundles].
+#
+# Relevant Gradle documentation: https://docs.gradle.org/8.5/userguide/platforms.html
+
+[versions]
+service-annotations = "2.0.1"
+lookup = "2.0.1"
+
+opentelemetry = "1.39.0"
+flogger = "0.7.4"
+
+junit5 = "5.10.2"
+
+[libraries]
+service-annotations = { module = "mil.army.usace.hec:service-annotations", version.ref = "service-annotations" }
+
+lookup = { module = "mil.army.usace.hec:lookup", version.ref = "lookup" }
+
+opentelemetry-bom = { module = "io.opentelemetry:opentelemetry-bom", version.ref = "opentelemetry" }
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetry-sdk-extension-autoconfigure-spi = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi", version.ref = "opentelemetry" }
+
+flogger-api = { module = "com.google.flogger:flogger", version.ref = "flogger" }
+flogger-backend = { module = "com.google.flogger:flogger-system-backend", version.ref = "flogger" }
+
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+
+[bundles]
+junit5 = ["junit-jupiter-api", "junit-jupiter-engine"]

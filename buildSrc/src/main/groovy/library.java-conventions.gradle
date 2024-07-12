@@ -1,0 +1,51 @@
+// This file defines the default configurations for the Java plugin, such as configuring the Java version to target
+// and setting up a few common dependencies.
+
+// Gradle documentation for Java Library plugin: https://docs.gradle.org/8.5/userguide/java_library_plugin.html
+
+plugins {
+    id 'java-library'
+}
+
+compileJava {
+    // Configure the Java release that you wish to target. Note that this does not necessarily directly correlate
+    // to the version of Java you have currently executing Gradle. This format requires at least Java 9, but will work
+    // with any release after that. Specifying the release with the `options.release` format enables compiling targeting
+    // a previous JDK when only a more recent JDK is available (for example, compile for Java 11 with Java 17 or 21).
+    options.release = 11
+
+    // This is the preferred method to specify the Java version. There is also the sourceCompatibility property, but
+    // Gradle recommends the options.release property instead. There is also the Java Toolchains system, but that
+    // does not appear to support cross compiling (target 11 with JDK 17); it instead expects to find exactly the matching
+    // JDK for the target version. (This limits it to compiling for Java 11 with Java 11, and targeting Java 11 with
+    // Java 17 doesn't work.)
+
+    options.encoding = 'UTF-8'
+}
+
+java {
+    // When building a library, ensure that a Sources and Javadoc jar are included as well; this makes sure
+    // that IDEs are able to automatically download and use the sources and javadoc for your library.
+    withSourcesJar()
+    withJavadocJar()
+}
+
+dependencies {
+    // Add the Service Annotations library (which provides @ServiceProvider) to the annotation processor and compile
+    // classpath, since it is a very common utility utilized across HEC libraries and applications.
+    annotationProcessor(libs.service.annotations)
+    configurations.compileClasspath.extendsFrom(configurations.annotationProcessor)
+
+    configurations.testAnnotationProcessor.extendsFrom(configurations.annotationProcessor)
+    configurations.testCompileClasspath.extendsFrom(configurations.testAnnotationProcessor)
+
+    testImplementation(libs.bundles.junit5)
+
+    implementation libs.flogger.api
+    runtimeOnly libs.flogger.backend
+}
+
+test {
+    // Utilize JUnit 5 to run tests.
+    useJUnitPlatform()
+}

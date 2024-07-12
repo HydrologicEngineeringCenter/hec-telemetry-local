@@ -1,0 +1,17 @@
+plugins {
+    id "com.palantir.git-version" version "3.0.0"
+    id "org.sonarqube" version "4.0.0.2929"
+    id "base"
+}
+
+def versionLabel(gitInfo) {
+    def branch = gitInfo.branchName // all branches are snapshots, only tags get released
+    def tag = gitInfo.lastTag
+    // tag is returned as is. Branch may need cleanup
+    return branch == null ? tag : "99." + branch.replace("/","-") + "-SNAPSHOT"
+}
+
+allprojects {
+    group = 'mil.army.usace.hec'
+    version = versionLabel(versionDetails())
+}

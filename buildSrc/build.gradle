@@ -1,0 +1,7 @@
+plugins {
+    /*
+     * This plugin enables referencing .gradle files in src/main/groovy as plugins from the rest of the Gradle
+     * build outside of the buildSrc project.
+     */
+    id 'groovy-gradle-plugin'
+}
