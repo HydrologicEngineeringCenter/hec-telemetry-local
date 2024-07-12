@@ -2,3 +2,4 @@ rootProject.name = 'hec-telemetry-local'
 
 include 'local-telemetry-data-access'
 include 'h2-telemetry-db'
+include 'opentelemetry-h2db-exporter'
