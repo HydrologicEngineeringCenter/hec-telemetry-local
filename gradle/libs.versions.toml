@@ -9,7 +9,11 @@ service-annotations = "2.0.1"
 lookup = "2.0.1"
 
 opentelemetry = "1.39.0"
+dbcp = "2.12.0"
 flogger = "0.7.4"
+gson = "2.8.9"
+
+h2db = "2.2.224"
 
 junit5 = "5.10.2"
 
@@ -26,6 +30,12 @@ opentelemetry-sdk-extension-autoconfigure-spi = { module = "io.opentelemetry:ope
 
 flogger-api = { module = "com.google.flogger:flogger", version.ref = "flogger" }
 flogger-backend = { module = "com.google.flogger:flogger-system-backend", version.ref = "flogger" }
+
+dbcp = { module = "org.apache.commons:commons-dbcp2", version.ref = "dbcp" }
+
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+h2db = { module = "com.h2database:h2", version.ref = "h2db" }
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }

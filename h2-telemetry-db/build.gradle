@@ -1,0 +1,23 @@
+plugins {
+    id 'library.deps-conventions'
+    id 'library.java-conventions'
+    id 'library.publishing-conventions'
+}
+
+dependencies {
+    api(project(":local-telemetry-data-access"))
+    implementation(libs.dbcp)
+    implementation(libs.gson)
+
+    runtimeOnly(libs.h2db)
+
+    testImplementation(libs.opentelemetry.sdk.testing)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
