@@ -1,0 +1,23 @@
+plugins {
+    id 'library.deps-conventions'
+    id 'library.java-conventions'
+    id 'library.publishing-conventions'
+}
+
+dependencies {
+    api(platform(libs.opentelemetry.bom))
+    api(libs.opentelemetry.api)
+    api(libs.opentelemetry.sdk)
+
+    implementation(libs.lookup)
+	
+    testImplementation(libs.opentelemetry.sdk.testing)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}

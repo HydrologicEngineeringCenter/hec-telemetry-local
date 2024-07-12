@@ -1,1 +1,3 @@
 rootProject.name = 'hec-telemetry-local'
+
+include 'local-telemetry-data-access'
