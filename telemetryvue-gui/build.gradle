@@ -1,0 +1,11 @@
+plugins {
+    id 'library.deps-conventions'
+    id 'library.java-conventions'
+}
+
+dependencies {
+    api(project(":telemetryvue-model"))
+    runtimeOnly(project(":telemetryvue-h2"))
+
+    implementation("mil.army.usace.hec:lookup:2.0.1")
+}

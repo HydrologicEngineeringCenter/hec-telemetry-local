@@ -1,0 +1,10 @@
+plugins {
+    id 'library.deps-conventions'
+    id 'library.java-conventions'
+}
+
+dependencies {
+    api(project(":local-telemetry-data-access"))
+
+    implementation("mil.army.usace.hec:lookup:2.0.1")
+}
