@@ -1,6 +1,7 @@
 plugins {
     id 'library.deps-conventions'
     id 'library.java-conventions'
+    id 'library.publishing-conventions'
 }
 
 dependencies {
@@ -8,4 +9,12 @@ dependencies {
     runtimeOnly(project(":telemetryvue-h2"))
 
     implementation("mil.army.usace.hec:lookup:2.0.1")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }

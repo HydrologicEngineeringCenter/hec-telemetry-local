@@ -1,10 +1,20 @@
 plugins {
     id 'library.deps-conventions'
     id 'library.java-conventions'
+    id 'library.publishing-conventions'
 }
 
 dependencies {
     api(project(":local-telemetry-data-access"))
 
-    implementation("mil.army.usace.hec:lookup:2.0.1")
+    implementation(libs.lookup)
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
