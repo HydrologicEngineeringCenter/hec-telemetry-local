@@ -3,8 +3,10 @@ package mil.army.usace.hec.opentelemetry.telemetryvue.gui;
 
 import com.google.common.flogger.FluentLogger;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.CloseDatabaseAction;
+import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.ExitAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.FlushDatabaseSwingAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.OpenDatabaseSwingAction;
+import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.ReloadSelectedDatabaseSwingAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.traceviewer.MultiTelemetryViewPanel;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.tree.TelemetryVueTreePanel;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.OperatingMode;
@@ -26,7 +28,6 @@ public class TelemetryVue {
     private JMenu _fileMenu;
     private JMenu _openMenuItem;
     private Action _closeMenuItem;
-    private JMenuItem _exitMenuItem;
     private JMenu _toolsMenu;
     private JSplitPane _splitPane;
     private TelemetryVueTreePanel _treePanel;
@@ -44,7 +45,6 @@ public class TelemetryVue {
     private void setupFrame() {
         _telemetryVueFrame = new JFrame("TelemetryVue");
         _telemetryVueFrame.setSize(800, 600);
-        _telemetryVueFrame.setVisible(true);
         _telemetryVueFrame.addWindowListener(new TelemetryVueWindowListener());
 
         setupMenuBar(_telemetryVueFrame);
@@ -60,6 +60,10 @@ public class TelemetryVue {
 
         _telemetryVueFrame.validate();
         _splitPane.setDividerLocation(0.35);
+        if(_model.getOperatingMode() == OperatingMode.STANDALONE) {
+            // In Embedded mode, let the parent app choose when to set visible.
+            _telemetryVueFrame.setVisible(true);
+        }
     }
 
     private void setupMenuBar(JFrame frame) {
@@ -76,21 +80,25 @@ public class TelemetryVue {
         });
 
         _closeMenuItem = new CloseDatabaseAction(getModel());
-        _exitMenuItem = new JMenuItem("Exit TelemetryVue");
         _fileMenu.add(_openMenuItem);
         _fileMenu.add(_closeMenuItem);
         _fileMenu.addSeparator();
-        _fileMenu.add(_exitMenuItem);
+        _fileMenu.add(new ExitAction(this));
         _menuBar.add(_fileMenu);
 
         _toolsMenu = new JMenu("Tools");
         _toolsMenu.add(new FlushDatabaseSwingAction(getModel()));
+        _toolsMenu.add(new ReloadSelectedDatabaseSwingAction(getModel()));
         _menuBar.add(_toolsMenu);
 
         frame.setJMenuBar(_menuBar);
     }
 
-    private TelemetryVueModel getModel() {
+    /**
+     * Use the model to perform actions in the TelemetryVue UI. The UI will respond to changes in the model state
+     * @return The model for this TelemetryVue frame
+     */
+    public TelemetryVueModel getModel() {
         return _model;
     }
 
@@ -106,11 +114,50 @@ public class TelemetryVue {
         });
     }
 
+    /**
+     * For embedded TelemetryVue, show the window
+     */
+    public void show() {
+        // Make sure the frame is ready if it was disposed
+        _telemetryVueFrame.pack();
+        // Show it
+        _telemetryVueFrame.setVisible(true);
+        // Try to bring it to the front
+        _telemetryVueFrame.requestFocus();
+    }
+
+    /**
+     * For embedded mode, show the window behaving as a child of the parent
+     * @param parent The parent window
+     */
+    public void show(JFrame parent) {
+        _telemetryVueFrame.setLocationRelativeTo(parent);
+        _telemetryVueFrame.setIconImage(parent.getIconImage());
+        show();
+    }
+
+    /**
+     * For embedded TelemetryVue, hide the window
+     */
+    public void hide() {
+        // Don't waste resources when the window is hidden. All important state
+        // lives in the model.
+        _telemetryVueFrame.dispose();
+    }
+
+    public void shutdown() {
+        getModel().closeAllConnections();
+        _telemetryVueFrame.dispose();
+    }
+
     private class TelemetryVueWindowListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent e) {
-            getModel().closeAllConnections();
-            _telemetryVueFrame.dispose();
+            if(getModel().getOperatingMode() == OperatingMode.EMBEDDED) {
+                hide();
+            } else {
+                shutdown();
+            }
         }
 
         @Override

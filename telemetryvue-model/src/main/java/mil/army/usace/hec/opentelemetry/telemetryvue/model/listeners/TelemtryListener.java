@@ -5,6 +5,7 @@ import mil.army.usace.hec.opentelemetry.telemetryvue.model.NestedTraceData;
 public interface TelemtryListener {
 
     void showTrace(NestedTraceData trace);
+    void loadingTrace();
     void unshowTrace(NestedTraceData trace);
 
 }

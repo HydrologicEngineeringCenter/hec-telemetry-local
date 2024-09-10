@@ -1,10 +1,12 @@
 package mil.army.usace.hec.opentelemetry.telemetryvue.gui.traceviewer;
 
 import mil.army.usace.hec.opentelemetry.objects.Trace;
+import mil.army.usace.hec.opentelemetry.telemetryvue.gui.util.TraceNameUtil;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.NestedTraceData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -50,10 +52,9 @@ public class ViewTracePanel extends JPanel {
         add(traceTableScrollPane, gbc);
     }
 
-    public String getTraceName() {
+    private String getTraceName() {
         Trace trace = _traceData.getTrace();
-        LocalDateTime date = LocalDateTime.ofInstant(trace.getTraceStartTime(), ZoneId.systemDefault());
-        return trace.getTraceDuration().getSeconds() + "s " + formatter.format(date) + " " + trace.getTraceName();
+        return TraceNameUtil.formatTraceName(trace);
     }
 
     public NestedTraceData getTraceData() {

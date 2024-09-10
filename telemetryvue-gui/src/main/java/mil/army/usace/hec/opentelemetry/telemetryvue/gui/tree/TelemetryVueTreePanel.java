@@ -37,7 +37,7 @@ public class TelemetryVueTreePanel extends JPanel {
         gbc.insets = new Insets(5,5,0,5);
         add(minimumDuration, gbc);
 
-        JComboBox<String> minimumDurationCombo = new JComboBox<>(new String[]{"1 Second"});
+        JComboBox<String> minimumDurationCombo = new JComboBox<>(new String[]{".05 Seconds"});
         minimumDurationCombo.setEnabled(false);
         gbc = new GridBagConstraints();
         gbc.gridx = GridBagConstraints.RELATIVE;

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class TelemetryVueTreeModel extends ConnectionAdapter implements TreeModel {
 
     private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
-    private final Duration miniumTraceDuration = Duration.ofNanos(500000000);
+    private final Duration miniumTraceDuration = Duration.ofNanos(50000000);
     private final List<TreeModelListener> _listeners = new ArrayList<>();
     private final TelemetryVueModel _model;
     private List<ConnectionNode> _connectionNodes = new ArrayList<>();

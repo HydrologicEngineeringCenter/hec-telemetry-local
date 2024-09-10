@@ -8,7 +8,6 @@ import mil.army.usace.hec.opentelemetry.TelemetryConnection;
 import mil.army.usace.hec.opentelemetry.TelemetryDataAccessException;
 import mil.army.usace.hec.opentelemetry.objects.SpanID;
 import mil.army.usace.hec.opentelemetry.objects.Trace;
-import mil.army.usace.hec.opentelemetry.telemetryvue.model.OperatingMode;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.actions.OpenDatabaseAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.listeners.ConnectionListener;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.listeners.TelemtryListener;
@@ -62,9 +61,18 @@ public class TelemetryVueModel {
 
     public void tryOpenDatabase(OpenDatabaseAction<?> openDatabaseAction, Map<String, Object> extraOpenParameters) {
         TelemetryConnection connection = openDatabaseAction.openDatabase(extraOpenParameters);
+        openExistingDatabase(connection);
+    }
+
+    public void openExistingDatabase(TelemetryConnection connection) {
         if (connection != null) {
-            _connections.add(connection);
-            _connectionListeners.forEach(listener -> listener.connectionAdded(connection));
+            // Only open a connection once.
+            if(_connections.contains(connection)) {
+                reloadConnection(connection);
+            } else {
+                _connections.add(connection);
+                _connectionListeners.forEach(listener -> listener.connectionAdded(connection));
+            }
         }
     }
 
@@ -110,6 +118,28 @@ public class TelemetryVueModel {
         }
     }
 
+    public void reloadConnection(TelemetryConnection connection) {
+        try {
+            // Simulate closing and reopening the connection to force everything to reload it
+            if (_connections.contains(connection)) {
+                if (getSelectedConnection() == connection) {
+                    setSelectedConnection(null);
+                }
+                for (NestedTraceData traceData : new ArrayList<>(_displayedTraces.getOrDefault(connection, Collections.emptyList()))) {
+                    unshowTrace(connection, traceData.getTrace());
+                }
+                _connections.remove(connection);
+                _connectionListeners.forEach(listener -> listener.connectionRemoved(connection));
+
+                _connectionListeners.forEach(listener -> listener.connectionAdded(connection));
+            } else {
+                LOGGER.atWarning().log("Attempting to reload connection not managed by TelemetryVue!");
+            }
+        } catch (Exception e) {
+            LOGGER.atWarning().withCause(e).log("Error closing connection");
+        }
+    }
+
     public List<NestedTraceData> getAllDisplayedTraces() {
         return _displayedTraces.values().stream()
                 .flatMap(List::stream)
@@ -133,6 +163,7 @@ public class TelemetryVueModel {
                     });
         }
         if (!traceAlreadyShown.get()) {
+            _traceListeners.forEach(TelemtryListener::loadingTrace);
             executeOnExecutorService(() -> {
                 try {
                     SpanDao<?> spanDao = connection.getTelemetryDaoFactory().getSpanDao();
