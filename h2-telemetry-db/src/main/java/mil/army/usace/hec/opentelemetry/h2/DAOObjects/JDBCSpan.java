@@ -1,8 +1,10 @@
 package mil.army.usace.hec.opentelemetry.h2.DAOObjects;
 
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.EventData;
@@ -11,6 +13,8 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.StatusData;
 
 import java.util.List;
+
+import com.google.protobuf.Descriptors.FieldDescriptor;
 
 public class JDBCSpan implements SpanData {
 
@@ -42,6 +46,22 @@ public class JDBCSpan implements SpanData {
         _endEpochNanos = endEpochNanos;
         _hasEnded = hasEnded;
         _resource = resource;
+    }
+
+    // TODO: change to take an actual SpanData instance and move the conversion into the receiver impl
+    public JDBCSpan(Span span) {
+        this._name = span.getName();
+        this._kind = SpanKind.valueOf(span.getKind().name());
+        this._spanContext = null;
+        this._parentSpanContext = null;
+        this._startEpochNanos = span.getStartTimeUnixNano();
+        this._attributes = null;
+        this._events = null;
+        this._links = null;
+        this._endEpochNanos = span.getEndTimeUnixNano();
+        this._status = StatusData.create(StatusCode.valueOf(span.getStatus().getCode().name()), "temp");
+        this._hasEnded = true;
+        this._resource = null;
     }
 
     @Override
