@@ -1,0 +1,37 @@
+plugins {
+    id 'library.deps-conventions'
+    id 'library.java-conventions'
+    id 'library.publishing-conventions'
+}
+
+dependencies {
+    api(platform(libs.opentelemetry.bom))
+    api(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.sdk.extension.autoconfigure.spi)
+    api(libs.opentelemetry.proto)
+    implementation(libs.grpc.netty.shadded)
+    implementation(libs.grpc.protobuf)
+    implementation(libs.grpc.stub)
+    implementation(libs.opentelemetry.sdk)
+
+    api(project(":local-telemetry-data-access"))
+
+    implementation(project(":h2-telemetry-db"))
+
+    
+    testImplementation(libs.opentelemetry.sdk.testing)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+
+task run(type: JavaExec) {
+    mainClass = "mil.army.usace.hec.opentelemetry.TelemetryVueReciever"
+    classpath = sourceSets.main.runtimeClasspath
+}

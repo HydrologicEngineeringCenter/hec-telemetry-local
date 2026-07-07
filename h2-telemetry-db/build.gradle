@@ -8,6 +8,7 @@ dependencies {
     api(project(":local-telemetry-data-access"))
     implementation(libs.dbcp)
     implementation(libs.gson)
+    implementation(libs.opentelemetry.proto)
 
     runtimeOnly(libs.h2db)
 
