@@ -1,7 +1,11 @@
 package mil.army.usace.hec.opentelemetry.telemetryvue.gui;
 
-
 import com.google.common.flogger.FluentLogger;
+
+import mil.army.usace.hec.opentelemetry.DaoFactory;
+import mil.army.usace.hec.opentelemetry.TelemetryConnection;
+import mil.army.usace.hec.opentelemetry.TelemetryDataAccessException;
+import mil.army.usace.hec.opentelemetry.TelemetryVueReciever;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.CloseDatabaseAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.ExitAction;
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.swing.actions.FlushDatabaseSwingAction;
@@ -11,10 +15,13 @@ import mil.army.usace.hec.opentelemetry.telemetryvue.gui.traceviewer.MultiTeleme
 import mil.army.usace.hec.opentelemetry.telemetryvue.gui.tree.TelemetryVueTreePanel;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.OperatingMode;
 import mil.army.usace.hec.opentelemetry.telemetryvue.model.TelemetryVueModel;
-
+import io.grpc.ServerBuilder;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +109,7 @@ public class TelemetryVue {
         return _model;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         SwingUtilities.invokeLater(() -> {
             // set system laf
             try {
@@ -112,6 +119,21 @@ public class TelemetryVue {
             }
             new TelemetryVue(OperatingMode.STANDALONE);
         });
+        DaoFactory<?> h2DaoFactory = DaoFactory.getDaoFactory("h2sql");
+        Map<String, Object> connectionParameters = new HashMap<>();
+        connectionParameters.put("file", Path.of(args.length == 1 ? args[0] : new File("db").getAbsolutePath()));
+
+        TelemetryConnection connection = h2DaoFactory.getConnection(connectionParameters);
+        try {
+            h2DaoFactory.initIfNeeded(connection);
+        } catch (TelemetryDataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        
+        var receiver = new TelemetryVueReciever(connection);
+        var server = ServerBuilder.forPort(4317).addService(receiver).build();
+        server.start();
+        server.awaitTermination();
     }
 
     /**

@@ -8,7 +8,7 @@ dependencies {
     api(platform(libs.opentelemetry.bom))
     api(libs.opentelemetry.api)
     implementation(libs.opentelemetry.sdk.extension.autoconfigure.spi)
-    implementation(libs.opentelemetry.proto)
+    api(libs.opentelemetry.proto)
     implementation(libs.grpc.netty.shadded)
     implementation(libs.grpc.protobuf)
     implementation(libs.grpc.stub)
@@ -16,7 +16,7 @@ dependencies {
 
     api(project(":local-telemetry-data-access"))
 
-    runtimeOnly(project(":h2-telemetry-db"))
+    implementation(project(":h2-telemetry-db"))
 
     
     testImplementation(libs.opentelemetry.sdk.testing)

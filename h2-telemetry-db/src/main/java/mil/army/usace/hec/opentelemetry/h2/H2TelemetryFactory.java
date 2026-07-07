@@ -38,8 +38,18 @@ public class H2TelemetryFactory implements DaoFactory<H2TelemetryConnection> {
     @Override
     public H2TelemetryConnection getConnection(Map<String, Object> parameters) {
         Path file = (Path) parameters.get("file");
-        String jdbcUrl = "jdbc:h2:" + file;
-        return connectionFor(jdbcUrl, "H2 " + file.getFileName().toString());
+        if (file != null) {
+            String jdbcUrl = "jdbc:h2:" + file;
+            return connectionFor(jdbcUrl, "H2 " + file.getFileName().toString());
+        }
+
+        String url = (String)parameters.get("url");
+        if (url != null) {
+            String jdbcUrl = "jdbc:h2:" + url;
+            return connectionFor(jdbcUrl, "H2 " + url);
+        }
+
+        throw new IllegalStateException("No valid configuration parameter. Require Path with key 'file' or URL with key 'url'");
     }
 
     H2TelemetryConnection connectionFor(String jdbcUrl, String name) {

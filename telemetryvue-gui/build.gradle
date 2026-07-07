@@ -8,6 +8,11 @@ plugins {
 dependencies {
     api(project(":telemetryvue-model"))
     runtimeOnly(project(":telemetryvue-h2"))
+    implementation(project(":telemetryvue-receiver"))
+    implementation(libs.grpc.netty.shadded)
+    implementation(libs.grpc.protobuf)
+    implementation(libs.grpc.stub)
+    implementation(libs.opentelemetry.sdk)
 
     implementation("mil.army.usace.hec:lookup:2.0.1")
 }
